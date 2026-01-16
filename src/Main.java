@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,12 +10,11 @@ import java.util.HashMap;
 public class Main {
 
     static String path = "";
-    static Integer pathCount = 0;
 
     public static void main(String[] args) {
         // Gets path of each CSV file from user
         Scanner getPath = new Scanner(System.in);
-        System.out.printf("Please type the path of the CSV file to be parsed.\nIf you are parsing multiple CSV files please seperate each path with a comma.\nDo not put any spaces inbetween comma and path.\nOnce finished press enter/return.%n");
+        System.out.printf("Please type the path of the CSV file to be parsed.\nIf you are parsing multiple CSV files please separate each path with a comma.\nDo not put any spaces in between comma and path.\nOnce finished press enter/return.%n");
         path = getPath.nextLine();
         // System.out.println("Path(s):" + path);
 
@@ -68,7 +68,7 @@ public class Main {
 
     // simplest parsing logic for "clean" CSV files
     public static ArrayList<HashMap<String, String>> parse(String CSVFile) {
-        String line = "";
+        String line;
         String[] columnHeaders = null;
         int numOfColumns = 0;
         ArrayList<HashMap<String, String>> rows = new ArrayList<>();
@@ -87,7 +87,7 @@ public class Main {
                 String[] values = line.split(",");
 
                 HashMap<String, String> row = new HashMap<>();
-                for (int i = 0; i < columnHeaders.length; i++) {
+                for (int i = 0; i < Objects.requireNonNull(columnHeaders).length; i++) {
                     row.put(columnHeaders[i], values[i]);
                 }
 
