@@ -7,67 +7,73 @@ import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+
 public class Main {
 
     static String path = "";
 
     public static void main(String[] args) {
-        // Gets path of each CSV file from user
         Scanner getPath = new Scanner(System.in);
-        System.out.printf("Please type the path of the CSV file to be parsed.\nIf you are parsing multiple CSV files please separate each path with a comma.\nDo not put any spaces in between comma and path.\nOnce finished press enter/return.%n");
+        System.out.printf("Please type the path of the CSV file(s) to be parsed." +
+                "\nIf you are parsing multiple CSV files please separate each path with a comma." +
+                "\nOnce finished press enter/return.%n");
         path = getPath.nextLine();
 
-        // Test CSV Files
-        // /Users/noebrown/Desktop/athletes.csv
-        // /Users/noebrown/Desktop/ethPriceData.csv
-        // /Users/noebrown/Desktop/cars.csv
-        // /Users/noebrown/Desktop/carsUnique.csv
-        // /Users/noebrown/Desktop/athletes.csv,/Users/noebrown/Desktop/ethPriceData.csv
-        // /Users/noebrown/Desktop/athletes.csv,/Users/noebrown/Desktop/cars.csv,/Users/noebrown/Desktop/ethPriceData.csv,/Users/noebrown/Desktop/carsUnique.csv,
-        verifyPathList();
-        parsePathList();
+        ArrayList<CSVFile> csvFiles = validatePathList(path);
+
+        for (CSVFile csvFile : csvFiles) {
+            System.out.println("=".repeat(50));
+            System.out.println(csvFile);
+        }
+        getPath.close();
     }
 
-    // Traverse the list of CSV paths and ensure each patch can be opened and closed
-    public static void verifyPathList() {
-        String[] pathList = path.split(",");
-        int pathCount = 0;
+    public static ArrayList<CSVFile> validatePathList(String CSVFiles) {
+        String[] filePaths = CSVFiles.split(",");
+        ArrayList<CSVFile> csvFileList = new ArrayList<>();
+
         boolean fileFound = true;
         boolean fileClosed = true;
+        int pathCount = 0;
 
-        // Try to open and close each CSV file
-        for (String s : pathList) {
+        // Try to open and close each CSV file to validate paths
+        for (String s : filePaths) {
+            String trimmedPath = s.trim();
             try {
-                BufferedReader bufferedReader = new BufferedReader(new FileReader(s));
+                BufferedReader bufferedReader = new BufferedReader(new FileReader(trimmedPath));
                 bufferedReader.close();
             } catch (FileNotFoundException noFileFound) {
-                System.err.println("One of the files cannot be found");
+                System.err.println("One of the files cannot be found: " + trimmedPath);
                 noFileFound.printStackTrace();
                 fileFound = false;
             } catch (IOException e) {
-                System.err.println("Error closing one of the files");
+                System.err.println("Error closing one of the files: " + trimmedPath);
                 e.printStackTrace();
                 fileClosed = false;
             }
             pathCount++;
         }
 
-        // System.out.println("\nTotal count: " + pathCount);
         if (!fileFound || !fileClosed) {
             System.out.println("Error occurred, no parsing will be done.");
+            return csvFileList; // Return empty list
         } else {
             System.out.println(pathCount + " CSV file(s) will be parsed");
         }
 
+        // Parse each CSV file
+        for (String filePath : filePaths) {
+            CSVFile csvFile = parseFile(filePath.trim());
+            if (csvFile != null) {
+                csvFileList.add(csvFile);
+            }
+        }
+
+        return csvFileList;
     }
 
-    // Traverse the list of CSV Paths and Parse each
-    public static void parsePathList() {
-        String[] pathList = path.split(",");
-        for (String s : pathList) parse(s);
-    }
 
-    public static ArrayList<HashMap<String, String>> parse(String CSVFile) {
+    public static CSVFile parseFile(String CSVFile) {
         String line = "";
         String[] columnHeaders = null;
         int numOfColumns = 0;
@@ -94,13 +100,36 @@ public class Main {
                             insideQuotes = !insideQuotes; // Toggle quote mode
                         }
                     } else if (currentChar == ',' && !insideQuotes) {
-                        headerList.add(currentField.toString());
+                        headerList.add(currentField.toString().trim());
                         currentField = new StringBuilder();
                     } else {
                         currentField.append(currentChar);
                     }
                 }
                 headerList.add(currentField.toString());
+
+                HashMap<String, Integer> headerCount = new HashMap<>();
+                for (int i = 0; i < headerList.size(); i++) {
+                    String header = headerList.get(i);
+
+                    // handles empty column edge case
+                    if(header.isEmpty()){
+                        header = "Column_" + (i + 1);
+                        headerList.set(i, header);
+                        System.out.println("Empty column header detected in path: '" + CSVFile + "' at column " + (i+1) +
+                                " renamed to '" + header + "'");
+                    }
+
+                    // handles duplicate column headers edge case
+                    if (headerCount.containsKey(header)) {
+                        int count = headerCount.get(header) + 1;
+                        headerCount.put(header, count);
+                        headerList.set(i, header + "_" + count);
+                        System.out.println("Duplicate column name detected in path: '" + CSVFile + "' '" + header + "' renamed to '" + header + "_" + count + "'");
+                    } else {
+                        headerCount.put(header, 1);
+                    }
+                }
 
                 columnHeaders = headerList.toArray(new String[0]);
                 numOfColumns = columnHeaders.length;
@@ -117,12 +146,11 @@ public class Main {
                     char currentChar = line.charAt(i);
 
                     if (currentChar == '"') {
-                        // Check if next char is also a quote (escaped quote)
                         if (i + 1 < line.length() && line.charAt(i + 1) == '"' && insideQuotes) {
-                            currentField.append('"'); // Add single quote
-                            i++; // Skip next quote
+                            currentField.append('"');
+                            i++;
                         } else {
-                            insideQuotes = !insideQuotes; // Toggle quote mode
+                            insideQuotes = !insideQuotes;
                         }
                     } else if (currentChar == ',' && !insideQuotes) {
                         valueList.add(currentField.toString());
@@ -145,12 +173,7 @@ public class Main {
 
             bufferedReader.close();
 
-            System.out.println(numOfColumns + " Columns");
-
-            // print rows
-            for (HashMap<String, String> rowMap : rows) {
-                System.out.println(rowMap);
-            }
+            return new CSVFile(CSVFile, rows, columnHeaders);
 
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + CSVFile);
@@ -160,6 +183,6 @@ public class Main {
             e.printStackTrace();
         }
 
-        return rows;
+        return null;
     }
 }
