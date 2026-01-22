@@ -126,7 +126,6 @@ public class Main {
     public static CSVFile parseFile(String CSVFile) {
         String line;
         String[] columnHeaders = null;
-        int numOfColumns = 0;
         ArrayList<HashMap<String, String>> rows = new ArrayList<>();
 
         try {
@@ -179,7 +178,9 @@ public class Main {
 
             bufferedReader.close();
 
-            return new CSVFile(CSVFile, rows.toArray(new HashMap[0]), columnHeaders);
+            @SuppressWarnings("unchecked")
+            HashMap<String, String>[] rowsArray = (HashMap<String, String>[]) rows.toArray(new HashMap[0]);
+            return new CSVFile(CSVFile, rowsArray, columnHeaders);
 
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + CSVFile);
