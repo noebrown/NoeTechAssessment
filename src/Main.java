@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 
+import java.util.Objects;
 import java.util.Scanner;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ public class Main {
                 "\nOnce finished press enter/return.%n");
         path = getPath.nextLine();
 
-        ArrayList<CSVFile> csvFiles = validatePathList(path);
+        CSVFile[] csvFiles = validatePathList(path);
 
         for (CSVFile csvFile : csvFiles) {
             System.out.println("=".repeat(50));
@@ -28,7 +29,15 @@ public class Main {
         getPath.close();
     }
 
-    public static ArrayList<CSVFile> validatePathList(String CSVFiles) {
+    /**
+     * Validates comma-separated list of CSV file paths and parses each valid file.
+     * Checks that all CSV files can be found, opened, and closed before parsing.
+     * If any of CSV file cannot be validated, no parsing will be done for all files.
+     *
+     * @param CSVFiles A comma-separated string of file paths to validate and parse
+     * @return ArrayList of successfully parsed CSVFile objects, or empty list if validation fails
+     */
+    public static CSVFile[] validatePathList(String CSVFiles) {
         String[] filePaths = CSVFiles.split(",");
         ArrayList<CSVFile> csvFileList = new ArrayList<>();
 
@@ -36,9 +45,9 @@ public class Main {
         boolean fileClosed = true;
         int pathCount = 0;
 
-        // Try to open and close each CSV file to validate paths
         for (String s : filePaths) {
             String trimmedPath = s.trim();
+
             try {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(trimmedPath));
                 bufferedReader.close();
@@ -51,17 +60,17 @@ public class Main {
                 e.printStackTrace();
                 fileClosed = false;
             }
+
             pathCount++;
         }
 
         if (!fileFound || !fileClosed) {
             System.out.println("Error occurred, no parsing will be done.");
-            return csvFileList; // Return empty list
+            return new CSVFile[0];
         } else {
             System.out.println(pathCount + " CSV file(s) will be parsed");
         }
 
-        // Parse each CSV file
         for (String filePath : filePaths) {
             CSVFile csvFile = parseFile(filePath.trim());
             if (csvFile != null) {
@@ -69,12 +78,53 @@ public class Main {
             }
         }
 
-        return csvFileList;
+        return csvFileList.toArray(new CSVFile[0]);
     }
 
+    /**
+     * Parses a CSV File line into individual field values.
+     * Handles quotes within quotes edge case.
+     *
+     * @param line The CSV line to parse
+     * @return ArrayList of field values from the line
+     */
+    private static ArrayList<String> parseCSVLine(String line) {
+        ArrayList<String> valueList = new ArrayList<>();
+        StringBuilder currentField = new StringBuilder();
+        boolean insideQuotes = false;
 
+        for (int i = 0; i < line.length(); i++) {
+            char currentChar = line.charAt(i);
+
+            if (currentChar == '"') {
+                // Handles quotes within quotes edge cases
+                if (i + 1 < line.length() && line.charAt(i + 1) == '"' && insideQuotes) {
+                    currentField.append('"');
+                    i++;
+                } else {
+                    insideQuotes = !insideQuotes;
+                }
+            } else if (currentChar == ',' && !insideQuotes) {
+                valueList.add(currentField.toString());
+                currentField = new StringBuilder();
+            } else {
+                currentField.append(currentChar);
+            }
+        }
+
+        valueList.add(currentField.toString());
+        return valueList;
+    }
+
+    /**
+     * Parses a CSV file into CSVFile object.
+     * Handles quoted fields, escaped quotes, duplicate column names, and empty column headers edge cases.
+     *
+     * @param CSVFile Path to the CSV file to parse
+     * @return CSVFile object containing parsed data, or null if an error occurs
+     */
     public static CSVFile parseFile(String CSVFile) {
-        String line = "";
+        String line;
         String[] columnHeaders = null;
         int numOfColumns = 0;
         ArrayList<HashMap<String, String>> rows = new ArrayList<>();
@@ -82,37 +132,16 @@ public class Main {
         try {
             BufferedReader bufferedReader = new BufferedReader(new FileReader(CSVFile));
 
-            // Read first line of CSV (ColumnHeaders) and save as keys
+            // Reads first line of CSV file (ColumnHeaders) and save as keys
             if ((line = bufferedReader.readLine()) != null) {
 
-                ArrayList<String> headerList = new ArrayList<>();
-                StringBuilder currentField = new StringBuilder();
-                boolean insideQuotes = false;
-
-                for (int i = 0; i < line.length(); i++) {
-                    char currentChar = line.charAt(i);
-
-                    if (currentChar == '"') {
-                        if (i + 1 < line.length() && line.charAt(i + 1) == '"' && insideQuotes) {
-                            currentField.append('"');
-                            i++;
-                        } else {
-                            insideQuotes = !insideQuotes; // Toggle quote mode
-                        }
-                    } else if (currentChar == ',' && !insideQuotes) {
-                        headerList.add(currentField.toString().trim());
-                        currentField = new StringBuilder();
-                    } else {
-                        currentField.append(currentChar);
-                    }
-                }
-                headerList.add(currentField.toString());
+                ArrayList<String> headerList = parseCSVLine(line);
 
                 HashMap<String, Integer> headerCount = new HashMap<>();
                 for (int i = 0; i < headerList.size(); i++) {
                     String header = headerList.get(i);
 
-                    // handles empty column edge case
+                    // Handles empty column headers edge case
                     if(header.isEmpty()){
                         header = "Column_" + (i + 1);
                         headerList.set(i, header);
@@ -120,7 +149,7 @@ public class Main {
                                 " renamed to '" + header + "'");
                     }
 
-                    // handles duplicate column headers edge case
+                    // Handles duplicate column headers edge case
                     if (headerCount.containsKey(header)) {
                         int count = headerCount.get(header) + 1;
                         headerCount.put(header, count);
@@ -132,39 +161,16 @@ public class Main {
                 }
 
                 columnHeaders = headerList.toArray(new String[0]);
-                numOfColumns = columnHeaders.length;
             }
 
-            // read rest of lines
             while ((line = bufferedReader.readLine()) != null) {
 
-                ArrayList<String> valueList = new ArrayList<>();
-                StringBuilder currentField = new StringBuilder();
-                boolean insideQuotes = false;
-
-                for (int i = 0; i < line.length(); i++) {
-                    char currentChar = line.charAt(i);
-
-                    if (currentChar == '"') {
-                        if (i + 1 < line.length() && line.charAt(i + 1) == '"' && insideQuotes) {
-                            currentField.append('"');
-                            i++;
-                        } else {
-                            insideQuotes = !insideQuotes;
-                        }
-                    } else if (currentChar == ',' && !insideQuotes) {
-                        valueList.add(currentField.toString());
-                        currentField = new StringBuilder();
-                    } else {
-                        currentField.append(currentChar);
-                    }
-                }
-                valueList.add(currentField.toString());
+                ArrayList<String> valueList = parseCSVLine(line);
 
                 String[] values = valueList.toArray(new String[0]);
 
                 HashMap<String, String> row = new HashMap<>();
-                for (int i = 0; i < columnHeaders.length && i < values.length; i++) {
+                for (int i = 0; i < Objects.requireNonNull(columnHeaders).length && i < values.length; i++) {
                     row.put(columnHeaders[i], values[i]);
                 }
 
@@ -173,7 +179,7 @@ public class Main {
 
             bufferedReader.close();
 
-            return new CSVFile(CSVFile, rows, columnHeaders);
+            return new CSVFile(CSVFile, rows.toArray(new HashMap[0]), columnHeaders);
 
         } catch (FileNotFoundException e) {
             System.err.println("File not found: " + CSVFile);

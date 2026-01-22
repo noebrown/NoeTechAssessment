@@ -1,12 +1,12 @@
-import java.util.ArrayList;
 import java.util.HashMap;
+
 
 class CSVFile {
     private String path;
-    private ArrayList<HashMap<String, String>> parsedFile;
+    private HashMap<String, String>[] parsedFile;
     private String[] columnHeaders;
 
-    public CSVFile(String path, ArrayList<HashMap<String, String>> parsedFile, String[] columnHeaders) {
+    public CSVFile(String path, HashMap<String, String>[] parsedFile, String[] columnHeaders) {
         this.path = path;
         this.parsedFile = parsedFile;
         this.columnHeaders = columnHeaders;
@@ -16,7 +16,7 @@ class CSVFile {
         return path;
     }
 
-    public ArrayList<HashMap<String, String>> getParsedFile() {
+    public HashMap<String, String>[] getParsedFile() {
         return parsedFile;
     }
 
@@ -28,7 +28,7 @@ class CSVFile {
         this.path = path;
     }
 
-    public void setParsedFile(ArrayList<HashMap<String, String>> parsedFile) {
+    public void setParsedFile(HashMap<String, String>[] parsedFile) {
         this.parsedFile = parsedFile;
     }
 
@@ -37,7 +37,7 @@ class CSVFile {
     }
 
     public int getNumRows() {
-        return parsedFile.size();
+        return parsedFile.length;
     }
 
     public int getNumColumns() {
@@ -45,8 +45,8 @@ class CSVFile {
     }
 
     public HashMap<String, String> getRow(int index) {
-        if (index >= 0 && index < parsedFile.size()) {
-            return parsedFile.get(index);
+        if (index >= 0 && index < parsedFile.length) {
+            return parsedFile[index];
         }
         return null;
     }
@@ -59,8 +59,8 @@ class CSVFile {
                 .append("\nColumns: ").append(getNumColumns())
                 .append("\nFirst 10 Rows:\n");
 
-        for (int i = 0; i < Math.min(10, parsedFile.size()); i++) {
-            sb.append("    Row ").append(i+1).append(": ").append(parsedFile.get(i)).append("\n");
+        for (int i = 0; i < Math.min(10, parsedFile.length); i++) {
+            sb.append("    Row ").append(i+1).append(": ").append(parsedFile[i]).append("\n");
         }
 
         return sb.toString();
