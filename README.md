@@ -94,5 +94,6 @@ The three most important aspects for developing my approach were creating a solu
 - Parsing line by line allows rows to be processed independently and incrementally. You can handle each row as soon as it's read. rather than loading the entire file into memory first. 
 - Splitting on the comma delimiters forces edge cases to be handled explicitly. This adds to code complexity but allows the option to alert the user and decide how to treat the edge case. 
 - The automatic renaming of empty and duplicate column headers prevents most data loss. It also allows the parser to still parse malformed CSV files and warn users of these occurrences. 
+- My approach implements encapsulation to access CSV file data through simple methods like getNumRows(), getNumColumns(), and getRow() to retrieve information. This helps with code readability, prevents external code from directly modifying CSVFile objects, and helps validate data (null checks).
 
 I like to believe that my solution prioritizes simplicity but not at the cost of functionality.
