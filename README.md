@@ -75,3 +75,24 @@ The number of rows in each CSV file is unknown initially. ArrayList has dynamic 
 ### Encapsulation
 
 Since our application allows for multiple CSV files to be parsed at once, encapsulation was a natural choice. All CSV files have common properties and behavior. Encapsulation keeps all the CSV file data (path, parsedFile (array of row hashmaps), column headers) together in one object. This object has private fields that prevent outside code from accidentally changing the data.
+
+Follow-up Questions
+----------------
+**What was the most challenging aspect of completing this project?**
+
+The most challenging aspect of this project for me was considering potential edge cases. For this portion of the project, I spent a considerable amount of time creating various test CSV files and identifying realistic challenges that could be present. After that, it was also pertinent to decide which edge cases took priority. There is no way to determine all possible edge cases or even account for all edges without sacrificing execution speed, decreasing code maintainability, and increasing the difficulty of tracing errors thrown.
+
+**What else would you choose to add to this project if given more time to work on it?**
+- I would choose to implement type detection for fields. Everything is currently stored as a string in the hashmap. 
+- My current approach silently handles column discrepancies between lines. Say the first line of the CSV file (the header) has three columns and the fourth line has four columns. My solution would skip the extra column in the fourth line. Instead, I would warn the user and offer a path for them to decide how it’s reconciled.
+- I would add pagination to handle large CSV files. I would also give the user the option to give input on how the file is split. For example, have the file split every x number of lines.
+
+**Why did you choose your specific approach? Did it come with any advantages vs.
+another one?**
+
+The three most important aspects for developing my approach were creating a solution that can handle a robust variety of CSV files, be easy to use, and have good code clarity. Keeping this in mind, I made the following decisions:
+- Parsing line by line allows rows to be processed independently and incrementally. You can handle each row as soon as it's read. rather than loading the entire file into memory first. 
+- Splitting on the comma delimiters forces edge cases to be handled explicitly. This adds to code complexity but allows the option to alert the user and decide how to treat the edge case. 
+- The automatic renaming of empty and duplicate column headers prevents most data loss. It also allows the parser to still parse malformed CSV files and warn users of these occurrences. 
+
+I like to believe that my solution prioritizes simplicity but not at the cost of functionality.
