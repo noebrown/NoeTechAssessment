@@ -1,11 +1,19 @@
 NoeTestAssesment Repository
 ===========================
 
-This CSV Parser is a Java application that reads and parses one or more CSV files. This application can handle edge cases, such as escaped quotes, duplicate column headers, empty column headers, and quoted fields. The parsed CSV file(s) is stored in a CSVFile object(s), allowing easy access and manipulation.
+This CSV Parser is a Java application that reads and parses one or more CSV files. This application can handle edge cases, such as escaped quotes, duplicate column headers, empty column headers, and quoted fields. The parsed CSV file(s) is stored in a CSVFile object(s), allowing easy access and manipulation. I programmed this project in the IntelliJ IDEA IDE and used git for verision control.
+
+Link to Github repo: https://github.com/noebrown/NoeTechAssessment
 
 How to Use the Program
 ----------------------
-
+* External Libraries Required:
+  - Jdk 23
+  - Junit5
+Suggested method of running:
+  - Opening the project in IntelliJ
+  - Downloading the necessary external libraries
+  - Selecting Main.java file and running 
 *  Enter CSV file path(s):
     - The program will prompt you to enter the path of the CSV file(s) to be parsed
     - For a single file: `path/to/your/file.csv`
