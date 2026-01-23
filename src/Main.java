@@ -35,7 +35,7 @@ public class Main {
      * @param CSVFiles A comma-separated string of file paths to validate and parse
      * @return ArrayList of successfully parsed CSVFile objects, or empty list if validation fails
      */
-    public static CSVFile[] validatePathList(String CSVFiles) {
+    static CSVFile[] validatePathList(String CSVFiles) {
         String[] filePaths = CSVFiles.split(",");
         ArrayList<CSVFile> csvFileList = new ArrayList<>();
         boolean fileFound = true;
@@ -83,7 +83,7 @@ public class Main {
      * @param CSVFile Path to the CSV file to parse
      * @return CSVFile object containing parsed data, or null if an error occurs
      */
-    public static CSVFile parseFile(String CSVFile) {
+     static CSVFile parseFile(String CSVFile) {
         String line;
         String[] columnHeaders = null;
         ArrayList<HashMap<String, String>> rows = new ArrayList<>();
