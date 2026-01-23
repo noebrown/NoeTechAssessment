@@ -78,7 +78,7 @@ public class Main {
 
     /**
      * Parses a CSV file into CSVFile object.
-     * Handles duplicate column header name and empty column header edge cases.
+     * Handles duplicate column header name, empty column header, and blank row edge cases.
      *
      * @param CSVFile Path to the CSV file to parse
      * @return CSVFile object containing parsed data, or null if an error occurs
@@ -130,7 +130,7 @@ public class Main {
                 ArrayList<String> valueList = parseCSVLine(line);
                 String[] fieldValues = valueList.toArray(new String[0]);
 
-                // Handles empty line edge case
+                // Handles empty row edge case
                 boolean lineEmpty = true;
                 for (String value : fieldValues) {
                     if (!value.trim().isEmpty()) {
@@ -175,20 +175,20 @@ public class Main {
     private static ArrayList<String> parseCSVLine(String line) {
         ArrayList<String> valueList = new ArrayList<>();
         StringBuilder currentField = new StringBuilder();
-        boolean insideQuotes = false;
+        boolean insideTheQuotes = false;
 
         for (int i = 0; i < line.length(); i++) {
             char currentChar = line.charAt(i);
 
             if (currentChar == '"') {
-                // Handles quotes within quotes edge cases
-                if (i + 1 < line.length() && line.charAt(i + 1) == '"' && insideQuotes) {
+                // Handles escaped quotes edge cases
+                if (i + 1 < line.length() && line.charAt(i + 1) == '"' && insideTheQuotes) {
                     currentField.append('"');
                     i++;
                 } else {
-                    insideQuotes = !insideQuotes;
+                    insideTheQuotes = !insideTheQuotes;
                 }
-            } else if (currentChar == ',' && !insideQuotes) {
+            } else if (currentChar == ',' && !insideTheQuotes) {
                 valueList.add(currentField.toString());
                 currentField = new StringBuilder();
             } else {

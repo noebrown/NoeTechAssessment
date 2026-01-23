@@ -80,14 +80,15 @@ Follow-up Questions
 ----------------
 **What was the most challenging aspect of completing this project?**
 
-The most challenging aspect of this project for me was considering potential edge cases. For this portion of the project, I spent a considerable amount of time creating various test CSV files and identifying realistic challenges that could be present. After that, it was also pertinent to decide which edge cases took priority. There is no way to determine all possible edge cases or even account for all edges without sacrificing execution speed, decreasing code maintainability, and increasing the difficulty of tracing errors thrown.
+The most challenging aspect of this project for me was considering potential edge cases. For this portion of the project, I spent a considerable amount of time creating various test CSV files and identifying realistic challenges that could be present. After that, it was also pertinent to decide which edge cases took priority. There is no way to determine all possible edge cases or even account for all edges without sacrificing execution speed, decreasing code maintainability, or increasing the difficulty of tracing errors thrown.
 
 **What else would you choose to add to this project if given more time to work on it?**
 - I would choose to implement type detection for fields. Everything is currently stored as a string in the hashmap. 
 - My current approach silently handles column discrepancies between lines. Say the first line of the CSV file (the header) has three columns and the fourth line has four columns. My solution would skip the extra column in the fourth line. Instead, I would warn the user and offer a path for them to decide how it’s reconciled.
+- When there are two column headers of the same name or e
 - I would add pagination to handle large CSV files. I would also give the user the option to give input on how the file is split. For example, have the file split every x number of lines.
 - Give the user the option to select if leading/trailing spaces in fields are kept or trimmed.
-- Figure out a way to newlines within fields using parse by line method although, the only way I can think of doing this is parsing by character.
+- Figure out a way to account for newlines within fields using parse by line method although, the only way I can think of doing that is parsing by character.
 
 **Why did you choose your specific approach? Did it come with any advantages vs.
 another one?**
@@ -97,6 +98,6 @@ The three most important aspects for developing my approach were creating a solu
 - Splitting on the comma delimiters forces edge cases to be handled explicitly. This adds to code complexity but allows the option to alert the user and decide how to treat the edge case. 
 - The automatic renaming of empty and duplicate column headers prevents most data loss. It also allows the parser to still parse malformed CSV files and warn users of these occurrences. 
 - I implemented encapsulation to access CSV file data through simple methods like getNumRows(), getNumColumns(), and getRow() to retrieve information. This helps with code readability, prevents external code from directly modifying CSVFile objects, and helps validate data (null checks).
-- My approach takes the header row columns (first line of the CSV file) as the 'source' of truth. This means if there was a mismatch between the columns in the following rows versus headers; such as less/more columns than the header are considered mistakes. Fields are left empty (if less columns than the header row) or discarded (if more columns than header row).
+- My approach takes the header row columns (first line of the CSV file) as the 'source' of truth. This means if there was a mismatch between the number of columns in header and the following rows; such as less/more columns than header in those columns are considered mistakes. Fields are left empty (if less columns than the header row) or discarded (if more columns than header row).
 
 I like to believe that my solution prioritizes simplicity but not at the cost of functionality.
