@@ -42,8 +42,8 @@ public class Main {
         boolean fileClosed = true;
         int pathCount = 0;
 
-        for (String s : filePaths) {
-            String trimmedPath = s.trim();
+        for (String filePath : filePaths) {
+            String trimmedPath = filePath.trim();
 
             try {
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(trimmedPath));
@@ -123,13 +123,28 @@ public class Main {
 
             while ((line = bufferedReader.readLine()) != null) {
 
-                ArrayList<String> valueList = parseCSVLine(line);
+                if (line.trim().isEmpty()) {
+                    continue;
+                }
 
-                String[] values = valueList.toArray(new String[0]);
+                ArrayList<String> valueList = parseCSVLine(line);
+                String[] fieldValues = valueList.toArray(new String[0]);
+
+                // Handles empty line edge case
+                boolean lineEmpty = true;
+                for (String value : fieldValues) {
+                    if (!value.trim().isEmpty()) {
+                        lineEmpty = false;
+                        break;
+                    }
+                }
+                if (lineEmpty) {
+                    continue;
+                }
 
                 HashMap<String, String> row = new HashMap<>();
-                for (int i = 0; i < Objects.requireNonNull(columnHeaders).length && i < values.length; i++) {
-                    row.put(columnHeaders[i], values[i]);
+                for (int i = 0; i < Objects.requireNonNull(columnHeaders).length && i < fieldValues.length; i++) {
+                    row.put(columnHeaders[i], fieldValues[i]);
                 }
                 rows.add(row);
             }
