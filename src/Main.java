@@ -16,7 +16,7 @@ public class Main {
         System.out.printf("Please type the path of the CSV file(s) to be parsed." +
                 "\nIf you are parsing multiple CSV files please separate each path with a comma." +
                 "\nOnce finished press enter/return.%n");
-        
+
         String path = getPath.nextLine();
         CSVFile[] csvFiles = validatePathList(path);
 
@@ -83,7 +83,7 @@ public class Main {
      * @param CSVFile Path to the CSV file to parse
      * @return CSVFile object containing parsed data, or null if an error occurs
      */
-     static CSVFile parseFile(String CSVFile) {
+    static CSVFile parseFile(String CSVFile) {
         String line;
         String[] columnHeaders = null;
         ArrayList<HashMap<String, String>> rows = new ArrayList<>();
@@ -127,8 +127,8 @@ public class Main {
                     continue;
                 }
 
-                ArrayList<String> valueList = parseCSVLine(line);
-                String[] fieldValues = valueList.toArray(new String[0]);
+                ArrayList<String> fieldList = parseCSVLine(line);
+                String[] fieldValues = fieldList.toArray(new String[0]);
 
                 // Handles empty row edge case
                 boolean lineEmpty = true;
@@ -159,7 +159,7 @@ public class Main {
             System.err.println("File not found: " + CSVFile);
             e.printStackTrace();
         } catch (IOException e) {
-            System.err.println("Error reading file: " + CSVFile);
+            System.err.println("Error opening file: " + CSVFile);
             e.printStackTrace();
         }
         return null;
@@ -173,7 +173,7 @@ public class Main {
      * @return ArrayList of field values from the line
      */
     private static ArrayList<String> parseCSVLine(String line) {
-        ArrayList<String> valueList = new ArrayList<>();
+        ArrayList<String> fieldList = new ArrayList<>();
         StringBuilder currentField = new StringBuilder();
         boolean insideTheQuotes = false;
 
@@ -189,13 +189,13 @@ public class Main {
                     insideTheQuotes = !insideTheQuotes;
                 }
             } else if (currentChar == ',' && !insideTheQuotes) {
-                valueList.add(currentField.toString());
+                fieldList.add(currentField.toString());
                 currentField = new StringBuilder();
             } else {
                 currentField.append(currentChar);
             }
         }
-        valueList.add(currentField.toString());
-        return valueList;
+        fieldList.add(currentField.toString());
+        return fieldList;
     }
 }
