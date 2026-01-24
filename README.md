@@ -3,14 +3,14 @@ NoeTestAssesment Repository
 
 This CSV Parser is a Java application that reads and parses one or more CSV files. This application can handle edge cases, such as escaped quotes, duplicate column headers, empty column headers, and quoted fields. The parsed CSV file(s) is stored in a CSVFile object(s), allowing easy access and manipulation. I programmed this project in the IntelliJ IDEA IDE and used git for verision control.
 
-Link to Github repo: https://github.com/noebrown/NoeTechAssessment
+Link to GitHub repo: https://github.com/noebrown/NoeTechAssessment
 
 How to Use the Program
 ----------------------
 * External Libraries Required:
   - Jdk 23
   - Junit5
-Suggested method of running:
+* Suggested method of running the project:
   - Opening the project in IntelliJ
   - Downloading the necessary external libraries
   - Selecting Main.java file and running 
@@ -71,7 +71,7 @@ Reads the first line as the column headers using parseCSVLine(). Empty column he
 
 ### parseCSVLine()
 
-Traverses through each character in a line. Uses the insideQuotes boolean flag to track whether the character is inside or outside quotes. Comma delimiters are only acknowledged when they are outside quotes (insideQuotes=false). Handles edge case when multiple sets of quotes occur in a row. Returns an ArrayList of field values. This logic is reused for column headers and rows.
+Traverses through each character in a line. Uses the insideTheQuotes boolean flag to track whether the character is inside or outside quotes. Comma delimiters are only acknowledged when they are outside quotes (insideTheQuotes=false). Handles edge case when multiple sets of quotes occur in a row. Returns an ArrayList of field values. This logic is reused for column headers and rows.
 
 Design Decisions
 ----------------
@@ -93,7 +93,7 @@ The most challenging aspect of this project for me was considering potential edg
 **What else would you choose to add to this project if given more time to work on it?**
 - I would choose to implement type detection for fields. Everything is currently stored as a string in the hashmap. 
 - My current approach silently handles column discrepancies between lines. Say the first line of the CSV file (the header) has three columns and the fourth line has four columns. My solution would skip the extra column in the fourth line. Instead, I would warn the user and offer a path for them to decide how it’s reconciled.
-- When there are two column headers of the same name or e
+- When there are two or more column headers of the same name or empty columns, the default process is auto-generating generic names. I would want to warn the user and give them the opportunity to either name the columns or go by the default.
 - I would add pagination to handle large CSV files. I would also give the user the option to give input on how the file is split. For example, have the file split every x number of lines.
 - Give the user the option to select if leading/trailing spaces in fields are kept or trimmed.
 - Figure out a way to account for newlines within fields using parse by line method although, the only way I can think of doing that is parsing by character.
